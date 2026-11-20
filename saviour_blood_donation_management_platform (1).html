@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saviour 🩸 | Blood Donation & Management Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            brand: ['"Cinzel Decorative"', 'serif']
+          },
+          colors: {
+            crimson: {
+              DEFAULT: '#E11D48',
+              dark: '#9F1239',
+              light: '#FB7185',
+              glow: 'rgba(225, 29, 72, 0.28)'
+            },
+            obsidian: {
+              950: '#0B0D12',
+              900: '#11141C',
+              850: '#161A24',
+              800: '#1C212E',
+              700: '#262D3D'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0B0D12;
+      color: #F8FAFC;
+      overflow-x: hidden;
+    }
+
+    /* Softened, refined blood-drop SVG background pattern */
+    .blood-bg-pattern {
+      background-color: #0B0D12;
+      background-image: radial-gradient(circle at 15% 15%, rgba(225, 29, 72, 0.08), transparent 40%),
+                        radial-gradient(circle at 85% 80%, rgba(225, 29, 72, 0.06), transparent 45%),
+                        url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M40 22c0 0-11 15-11 22a11 11 0 0 0 22 0c0-7-11-22-11-22z' fill='%23E11D48' fill-opacity='0.035'/%3E%3Ccircle cx='120' cy='45' r='13' stroke='%23E11D48' stroke-opacity='0.03' stroke-width='3'/%3E%3Cpath d='M95 110c0 0-8 11-8 16a8 8 0 0 0 16 0c0-5-8-16-8-16z' fill='%23E11D48' fill-opacity='0.03'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .glass-card {
+      background: linear-gradient(145deg, rgba(28, 33, 46, 0.85), rgba(17, 20, 28, 0.92));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(14px);
+    }
+
+    /* Softer, balanced rose-slate glass card instead of harsh solid red */
+    .glass-card-crimson {
+      background: linear-gradient(145deg, rgba(38, 24, 34, 0.82), rgba(19, 22, 31, 0.94));
+      border: 1px solid rgba(225, 29, 72, 0.28);
+      box-shadow: 0 14px 36px -12px rgba(225, 29, 72, 0.18);
+      backdrop-filter: blur(14px);
+    }
+
+    .crimson-text-glow {
+      text-shadow: 0 0 22px rgba(225, 29, 72, 0.45);
+    }
+
+    @keyframes pulseUrgent {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45); }
+      50% { box-shadow: 0 0 0 8px rgba(225, 29, 72, 0); }
+    }
+    .urgent-pulse {
+      animation: pulseUrgent 2s infinite;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0B0D12; }
+    ::-webkit-scrollbar-thumb { background: #262D3D; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #E11D48; }
+  </style>
+</head>
+<body class="blood-bg-pattern min-h-screen flex flex-col selection:bg-crimson selection:text-white">
+
+  <!-- Toast / Alert Notification Banner -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- ==================== 0. ENTRY / AUTH GATE (FIRST PAGE ONLY) ==================== -->
+  <div id="authGatePage" class="min-h-screen flex flex-col justify-center items-center px-4 py-10 relative">
+    <div class="max-w-4xl w-full space-y-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-obsidian-800 to-obsidian-950 border border-crimson/50 shadow-2xl shadow-crimson/20 mx-auto">
+          <svg class="w-12 h-12" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 6L10 15V31C10 45.5 19.4 58.6 32 62C44.6 58.6 54 45.5 54 31V15L32 6Z" fill="#161A24" stroke="#E11D48" stroke-width="2.8"/>
+            <path d="M32 43C32 43 20 34.8 20 26.5C20 22.9 22.8 20 26.3 20C28.5 20 30.6 21.1 32 22.9C33.4 21.1 35.5 20 37.7 20C41.2 20 44 22.9 44 26.5C44 34.8 32 43 32 43Z" fill="#E11D48"/>
+            <path d="M16 36C18 43 24 49 30 51M48 36C46 43 40 49 34 51" stroke="#F8FAFC" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="flex items-baseline justify-center gap-1.5">
+          <h1 class="font-brand tracking-wide select-none">
+            <span class="text-5xl sm:text-7xl font-black text-crimson crimson-text-glow">S</span><span class="text-3xl sm:text-5xl font-bold text-white tracking-normal">aviour</span>
+          </h1>
+          <span class="text-2xl sm:text-3xl">🩸</span>
+        </div>
+        <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+          Emergency Blood Donation &amp; Life-Saving Management Network 🏥🚨. Connect donors and patients within minutes via automated WhatsApp &amp; geo-radius alerts.
+        </p>
+      </div>
+
+      <!-- STEP 1: ENTRY CHOICE CARDS (SIGN IN vs SIGN UP) -->
+      <div id="entryChoiceView" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <!-- Sign In Card -->
+        <div class="glass-card rounded-3xl p-7 flex flex-col justify-between space-y-6 border border-white/10 hover:border-crimson/50 transition-all">
+          <div class="space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-obsidian-800 border border-white/10 flex items-center justify-center text-2xl">
+              🔑
+            </div>
+            <h2 class="text-2xl font-extrabold text-white">Sign In</h2>
+            <p class="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              Already registered with <span class="font-brand font-bold"><span class="text-crimson text-base">S</span><span class="text-white">aviour</span></span>? Sign in using your Mobile Number, Email, or Donor ID to view active blood requests or raise an emergency alert.
+            </p>
+          </div>
+          <button onclick="showAuthStep('signin')" class="w-full py-3.5 rounded-2xl bg-obsidian-800 hover:bg-crimson text-white border border-crimson/40 font-bold text-sm transition-all flex items-center justify-center gap-2">
+            <span>Sign In to Account</span> <span>→</span>
+          </button>
+        </div>
+
+        <!-- Sign Up Card -->
+        <div class="glass-card-crimson rounded-3xl p-7 flex flex-col justify-between space-y-6">
+          <div class="space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-crimson/20 border border-crimson/40 flex items-center justify-center text-2xl">
+              🩸
+            </div>
+            <h2 class="text-2xl font-extrabold text-white">Sign Up (New User)</h2>
+            <p class="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+              First-time donor or receiver? Complete one-time registration with your medical screening details to generate your unique <strong class="text-white">Donor ID</strong>.
+            </p>
+          </div>
+          <button onclick="showAuthStep('signup')" class="w-full py-3.5 rounded-2xl bg-crimson hover:bg-crimson-light text-white font-extrabold text-sm shadow-lg shadow-crimson/35 transition-all flex items-center justify-center gap-2">
+            <span>Create New Account</span> <span>✨</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2A: DEDICATED SIGN IN VIEW -->
+      <div id="signInStepView" class="hidden max-w-md mx-auto glass-card rounded-3xl p-7 space-y-5 border border-white/15">
+        <div class="flex items-center justify-between">
+          <h2 class="text-2xl font-black text-white flex items-center gap-2"><span>🔑</span> Sign In</h2>
+          <button onclick="showAuthStep('choice')" class="text-xs font-semibold text-zinc-400 hover:text-white">← Back</button>
+        </div>
+        <p class="text-xs text-zinc-400">Enter your registered Mobile Number, Email, or Donor ID.</p>
+
+        <form onsubmit="handleSignInSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Mobile Number / Email / Donor ID *</label>
+            <input type="text" id="loginIdentifier" required placeholder="e.g., 9876543210 or SAV-2026-8492"
+              class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-crimson" />
+          </div>
+          <p id="loginErrorMsg" class="text-xs text-crimson font-bold hidden"></p>
+          <button type="submit" class="w-full py-3.5 rounded-2xl bg-crimson hover:bg-crimson-light text-white font-extrabold text-sm shadow-lg shadow-crimson/30 transition-all">
+            Enter SAVIOUR Home →
+          </button>
+        </form>
+
+        <!-- Quick Demo Accounts for Instant Testing -->
+        <div class="pt-4 border-t border-white/10 space-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Quick One-Click Demo Login:</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="quickDemoLogin('9876543210')" class="p-2.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/10 text-left transition-all">
+              <p class="text-xs font-bold text-white">Arjun Sharma <span class="text-crimson">(O+)</span></p>
+              <p class="text-[10px] text-emerald-400">Eligible Donor • 65d gap</p>
+            </button>
+            <button type="button" onclick="quickDemoLogin('9123456780')" class="p-2.5 rounded-xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/10 text-left transition-all">
+              <p class="text-xs font-bold text-white">Sneha Reddy <span class="text-crimson">(B+)</span></p>
+              <p class="text-[10px] text-amber-400">Receiver / 40d gap</p>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2B: DEDICATED SIGN UP VIEW (ALL FIELDS FROM HANDWRITTEN NOTES) -->
+      <div id="signUpStepView" class="hidden max-w-3xl mx-auto glass-card-crimson rounded-3xl p-6 sm:p-8 space-y-5 border border-crimson/50">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+          <div>
+            <h2 class="text-2xl font-black text-white flex items-center gap-2"><span>🩸</span> New User Registration</h2>
+            <p class="text-xs text-zinc-300 mt-0.5">Generates your unique Donor ID &amp; activates SMS / Email / WhatsApp notifications.</p>
+          </div>
+          <button onclick="showAuthStep('choice')" class="px-3 py-1.5 rounded-xl bg-obsidian-900 text-xs font-semibold text-zinc-300 hover:text-white border border-white/10">← Back</button>
+        </div>
+
+        <form id="registrationForm" onsubmit="handleRegisterUser(event)" class="space-y-4">
+          <!-- Row 1: Name, DOB, Age -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+            <div class="sm:col-span-5">
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Full Name *</label>
+              <input type="text" id="regName" required placeholder="Enter full name"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Date of Birth *</label>
+              <input type="date" id="regDob" required onchange="calculateAgeFromDob()"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+            </div>
+            <div class="sm:col-span-3">
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Age (Auto) *</label>
+              <input type="number" id="regAge" min="18" max="65" required placeholder="18+"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-crimson" />
+            </div>
+          </div>
+
+          <!-- Row 2: Gender, Blood Group, Last Blood Donated Date -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Gender *</label>
+              <select id="regGender" class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson">
+                <option value="Male">Male (&gt; 60 days rule)</option>
+                <option value="Female">Female (&gt; 120 days rule)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Blood Group *</label>
+              <select id="regBlood" class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-crimson font-extrabold focus:outline-none focus:border-crimson">
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Last Blood Donated Date</label>
+              <input type="date" id="regLastDonatedDate"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+              <span class="text-[10px] text-zinc-400">Leave blank if never donated</span>
+            </div>
+          </div>
+
+          <!-- Row 3: Mobile Number (10 digits starting 6-9), Email, Place/Address -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Mobile No. (10 digits, 6-9) *</label>
+              <input type="tel" id="regPhone" required maxlength="10" placeholder="9876543210"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Email (Valid @ domain) *</label>
+              <input type="email" id="regEmail" required placeholder="user@gmail.com"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1">Place / Address of Stay *</label>
+              <input type="text" id="regAddress" required placeholder="Area, City"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+            </div>
+          </div>
+
+          <!-- Row 4: Mandatory Screening Checklist -->
+          <div class="p-4 rounded-2xl bg-obsidian-900/95 border border-white/10 space-y-2.5 text-xs">
+            <p class="font-bold text-white">🩺 Donor Eligibility &amp; Medical Screening Questions:</p>
+            <label class="flex items-center justify-between gap-2 text-zinc-300 cursor-pointer">
+              <span>1. Any transmission disease or major illness?</span>
+              <select id="regTransmission" class="bg-obsidian-800 border border-white/15 rounded-lg px-2.5 py-1 text-white font-semibold">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </label>
+            <label class="flex items-center justify-between gap-2 text-zinc-300 cursor-pointer">
+              <span>2. Fever or any high-dose medication/antibiotics during last 1 month?</span>
+              <select id="regFeverMeds" class="bg-obsidian-800 border border-white/15 rounded-lg px-2.5 py-1 text-white font-semibold">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </label>
+            <label class="flex items-center justify-between gap-2 text-zinc-300 cursor-pointer">
+              <span>3. Taken alcohol or drugs within the last 36 hours? (For donors)</span>
+              <select id="regAlcohol36" class="bg-obsidian-800 border border-white/15 rounded-lg px-2.5 py-1 text-white font-semibold">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </label>
+            <label class="flex items-center gap-2 text-emerald-400 font-semibold cursor-pointer pt-2 border-t border-white/10">
+              <input type="checkbox" id="regWhatsapp" checked class="accent-crimson w-4 h-4" />
+              <span>Automate notifications via Email, SMS &amp; direct WhatsApp integration</span>
+            </label>
+          </div>
+
+          <p id="regErrorMsg" class="text-xs text-crimson font-bold hidden"></p>
+
+          <button type="submit" class="w-full py-3.5 rounded-2xl bg-crimson hover:bg-crimson-light text-white font-extrabold text-sm shadow-lg shadow-crimson/35 transition-all">
+            ✅ Create Account, Generate Donor ID &amp; Go to Home →
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN AUTHENTICATED APP SHELL (HIDDEN UNTIL LOGIN) ==================== -->
+  <div id="authenticatedAppShell" class="hidden flex-1 flex flex-col">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 bg-obsidian-950/85 backdrop-blur-lg border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand Identity: Oversized Red S + Normal White aviour -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-obsidian-800 to-obsidian-950 border border-crimson/40 flex items-center justify-center shadow-lg shadow-crimson/15">
+          <!-- Custom Shield-Heart-Hands SVG Logo -->
+          <svg class="w-7 h-7" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 6L10 15V31C10 45.5 19.4 58.6 32 62C44.6 58.6 54 45.5 54 31V15L32 6Z" fill="#161A24" stroke="#E11D48" stroke-width="2.8"/>
+            <path d="M32 43C32 43 20 34.8 20 26.5C20 22.9 22.8 20 26.3 20C28.5 20 30.6 21.1 32 22.9C33.4 21.1 35.5 20 37.7 20C41.2 20 44 22.9 44 26.5C44 34.8 32 43 32 43Z" fill="#E11D48"/>
+            <path d="M16 36C18 43 24 49 30 51M48 36C46 43 40 49 34 51" stroke="#F8FAFC" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-baseline gap-1.5">
+            <h1 class="font-brand leading-none select-none">
+              <span class="text-3xl sm:text-4xl font-black text-crimson crimson-text-glow">S</span><span class="text-xl sm:text-2xl font-bold text-white tracking-normal">aviour</span>
+            </h1>
+            <span class="text-base">🩸</span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-medium tracking-wide mt-0.5">Blood Donation &amp; Management Platform</p>
+        </div>
+      </div>
+
+      <!-- Desktop Navigation Tabs -->
+      <nav class="hidden lg:flex items-center bg-obsidian-800/90 p-1.5 rounded-2xl border border-white/10 gap-1" id="desktopNav">
+        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-crimson text-white shadow-md shadow-crimson/30">
+          🏠 Home
+        </button>
+        <button onclick="switchTab('donate')" data-tab="donate" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-zinc-300 hover:text-white hover:bg-white/5 transition-all">
+          🩸 Donor Feed
+        </button>
+        <button onclick="switchTab('request')" data-tab="request" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-zinc-300 hover:text-white hover:bg-white/5 transition-all">
+          🚨 Request Blood (Receiver)
+        </button>
+        <button onclick="switchTab('profile')" data-tab="profile" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-zinc-300 hover:text-white hover:bg-white/5 transition-all">
+          👤 Donor Profile
+        </button>
+        <button onclick="switchTab('achievements')" data-tab="achievements" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-zinc-300 hover:text-white hover:bg-white/5 transition-all">
+          📊 Recent Achievements
+        </button>
+      </nav>
+
+      <!-- User Status & Logout Action -->
+      <div class="flex items-center gap-2.5">
+        <div id="headerUserBadge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-obsidian-800 border border-white/10 text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-zinc-300 font-medium" id="headerUserName">Arjun Sharma</span>
+          <span class="px-1.5 py-0.5 rounded bg-crimson/20 text-crimson font-bold" id="headerUserBlood">O+</span>
+          <span class="text-[10px] font-mono text-zinc-400" id="headerDonorId">SAV-2026-8492</span>
+        </div>
+        <button onclick="logoutUser()" class="px-3.5 py-2 rounded-xl bg-obsidian-800 hover:bg-crimson text-zinc-200 hover:text-white border border-white/15 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5">
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Responsive Navigation Bar -->
+    <div class="lg:hidden flex overflow-x-auto px-3 py-2 gap-1.5 border-t border-white/5 bg-obsidian-900/95 no-scrollbar">
+      <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-semibold bg-crimson text-white">
+        🏠 Home
+      </button>
+      <button onclick="switchTab('donate')" data-tab="donate" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-semibold text-zinc-300 bg-obsidian-800">
+        🩸 Donate
+      </button>
+      <button onclick="switchTab('request')" data-tab="request" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-semibold text-zinc-300 bg-obsidian-800">
+        🚨 Request
+      </button>
+      <button onclick="switchTab('profile')" data-tab="profile" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-semibold text-zinc-300 bg-obsidian-800">
+        👤 Profile
+      </button>
+      <button onclick="switchTab('achievements')" data-tab="achievements" class="nav-btn whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-semibold text-zinc-300 bg-obsidian-800">
+        📊 Achieve
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ==================== TAB 1: HOME / DASHBOARD ==================== -->
+    <section id="tab-dashboard" class="tab-section space-y-6">
+      <!-- Top Hero Banner -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border border-crimson/25 relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-56 h-56 rounded-full bg-crimson/10 blur-3xl pointer-events-none"></div>
+        <div class="space-y-2.5 max-w-2xl relative z-10">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-crimson/15 border border-crimson/30 text-crimson-light text-xs font-bold uppercase tracking-wider">
+            <span>🚨 Live Emergency Response Network</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+            Be Someone's <span class="font-brand"><span class="text-crimson text-3xl sm:text-5xl crimson-text-glow">S</span><span class="text-white">aviour</span></span> Today 🩸
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Real-time geo-radius matching (10–15 km standard, up to 50 km priority) with automated ABO/Rh cross-compatibility alerts when every second counts.
+          </p>
+        </div>
+        <div class="flex flex-wrap sm:flex-nowrap gap-3 w-full lg:w-auto relative z-10">
+          <button onclick="switchTab('request')" class="flex-1 sm:flex-none px-5 py-3.5 rounded-2xl bg-crimson hover:bg-crimson-light text-white font-bold text-sm shadow-lg shadow-crimson/25 transition-all flex items-center justify-center gap-2">
+            <span>🏥</span> Post Blood Request
+          </button>
+          <button onclick="switchTab('donate')" class="flex-1 sm:flex-none px-5 py-3.5 rounded-2xl bg-obsidian-800 hover:bg-obsidian-700 text-white border border-white/15 font-bold text-sm transition-all flex items-center justify-center gap-2">
+            <span>🤝</span> Respond to Alerts
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Achievement Overview Strip (Mirrors Mockup Cards) -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Recent Achievement</span>
+            <span class="text-xs font-normal text-zinc-400">(Live Platform Metrics)</span>
+          </h3>
+          <button onclick="switchTab('achievements')" class="text-xs font-semibold text-crimson hover:underline">View Full Analytics →</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Card 1: Donations Done -->
+          <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Donations Done 🩸</p>
+                <p class="text-2xl font-black text-white mt-1">Total Units: <span class="text-crimson stat-donations">1,452</span></p>
+              </div>
+              <span class="text-2xl">💉</span>
+            </div>
+            <div class="mt-3 h-12 w-full">
+              <svg viewBox="0 0 200 45" class="w-full h-full overflow-visible">
+                <defs>
+                  <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#DC143C" stop-opacity="0.45"/>
+                    <stop offset="100%" stop-color="#DC143C" stop-opacity="0.0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,38 Q30,35 55,26 T110,22 T160,12 T200,5 L200,45 L0,45 Z" fill="url(#grad1)"/>
+                <path d="M0,38 Q30,35 55,26 T110,22 T160,12 T200,5" fill="none" stroke="#DC143C" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 2: Requests Received -->
+          <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Requests Received 📣</p>
+                <p class="text-2xl font-black text-white mt-1">Total Cases: <span class="text-white stat-requests">289</span></p>
+              </div>
+              <span class="text-2xl">🏥</span>
+            </div>
+            <div class="mt-3 h-12 w-full">
+              <svg viewBox="0 0 200 45" class="w-full h-full overflow-visible">
+                <path d="M0,40 Q40,30 70,32 T130,18 T175,14 T200,6 L200,45 L0,45 Z" fill="url(#grad1)"/>
+                <path d="M0,40 Q40,30 70,32 T130,18 T175,14 T200,6" fill="none" stroke="#DC143C" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 3: Users Registered -->
+          <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Users Registered 👤</p>
+                <p class="text-2xl font-black text-white mt-1">Community: <span class="text-white stat-users">3,910</span></p>
+              </div>
+              <span class="text-2xl">🤝</span>
+            </div>
+            <div class="mt-3 h-12 w-full">
+              <svg viewBox="0 0 200 45" class="w-full h-full overflow-visible">
+                <path d="M0,36 Q35,28 65,30 T120,16 T165,12 T200,4 L200,45 L0,45 Z" fill="url(#grad1)"/>
+                <path d="M0,36 Q35,28 65,30 T120,16 T165,12 T200,4" fill="none" stroke="#DC143C" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 4: Lives Impacted -->
+          <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Lives Impacted ❤️</p>
+                <p class="text-2xl font-black text-white mt-1">Estimated: <span class="text-emerald-400 stat-lives">4,356</span></p>
+              </div>
+              <span class="text-2xl">🌟</span>
+            </div>
+            <div class="mt-3 h-12 w-full">
+              <svg viewBox="0 0 200 45" class="w-full h-full overflow-visible">
+                <path d="M0,41 Q30,33 65,28 T125,20 T170,10 T200,3 L200,45 L0,45 Z" fill="url(#grad1)"/>
+                <path d="M0,41 Q30,33 65,28 T125,20 T170,10 T200,3" fill="none" stroke="#DC143C" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main 2-Column Interactive Workspace (Matches Phone & Web Mockup) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left Column: Quick Actions + Urgent Causes Feed -->
+        <div class="lg:col-span-7 space-y-6">
+          <!-- Find a Donor / Post a Request Card -->
+          <div class="glass-card rounded-3xl p-5 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+              <div>
+                <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
+                  <span class="text-crimson">📍</span> FIND A DONOR / POST A REQUEST
+                </h3>
+                <p class="text-xs text-zinc-400 mt-1">
+                  • Standard Broadcast: <span class="text-zinc-200 font-semibold">Within 10–15 km</span> &nbsp;|&nbsp;
+                  • Priority/High: <span class="text-crimson font-semibold">Up to 50 km + Cross-Compatible</span>
+                </p>
+              </div>
+              <button onclick="switchTab('request')" class="px-4 py-2.5 rounded-xl bg-crimson hover:bg-crimson-light text-white text-xs font-bold transition-all shrink-0">
+                + New Emergency Request
+              </button>
+            </div>
+
+            <!-- Urgent Causes List -->
+            <div class="mt-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-crimson flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-crimson animate-ping"></span>
+                  URGENT CAUSES &amp; LIVE REQUESTS
+                </span>
+                <span class="text-xs text-zinc-400" id="activeRequestCountLabel">3 Active Cases</span>
+              </div>
+              <div id="dashboardUrgentList" class="space-y-3">
+                <!-- Populated dynamically via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: My Donor Profile Summary & Notifications -->
+        <div class="lg:col-span-5 space-y-6">
+          <!-- My Donor Profile Mini Card -->
+          <div class="glass-card rounded-3xl p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                <span class="text-crimson">👤</span> MY DONOR PROFILE
+              </h3>
+              <span id="dashEligibilityBadge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                ✅ Eligible to Donate
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-obsidian-900/90 p-3.5 rounded-2xl border border-white/5">
+                <p class="text-xs text-zinc-400">Donor ID</p>
+                <p class="text-sm font-bold text-white mt-0.5" id="dashDonorId">SAV-2026-8492</p>
+              </div>
+              <div class="bg-obsidian-900/90 p-3.5 rounded-2xl border border-white/5">
+                <p class="text-xs text-zinc-400">Blood Group &amp; Gender</p>
+                <p class="text-sm font-bold text-crimson mt-0.5"><span id="dashBloodGroup">O+</span> • <span id="dashGender" class="text-zinc-200">Male</span></p>
+              </div>
+              <div class="bg-obsidian-900/90 p-3.5 rounded-2xl border border-white/5">
+                <p class="text-xs text-zinc-400">Last Donation</p>
+                <p class="text-sm font-bold text-white mt-0.5"><span id="dashDaysAgo">65</span> Days Ago</p>
+              </div>
+              <div class="bg-obsidian-900/90 p-3.5 rounded-2xl border border-white/5">
+                <p class="text-xs text-zinc-400">Required Gap Rule</p>
+                <p class="text-sm font-bold text-zinc-200 mt-0.5" id="dashGapRule">&gt; 60 Days (Male)</p>
+              </div>
+            </div>
+
+            <!-- Donation History Mini Bar Chart -->
+            <div>
+              <div class="flex items-center justify-between text-xs mb-2">
+                <span class="font-semibold text-zinc-300">Donation History (Units / Quarter)</span>
+                <button onclick="switchTab('profile')" class="text-crimson hover:underline font-semibold">Edit Screening →</button>
+              </div>
+              <div class="bg-obsidian-900/80 p-3 rounded-2xl border border-white/5 flex items-end justify-between gap-2 h-24" id="miniHistoryBars">
+                <!-- Bars rendered by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Notifications Feed -->
+          <div class="glass-card rounded-3xl p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
+                <span>🔔</span> NOTIFICATIONS &amp; AUTOMATED LOGS
+              </h3>
+              <span class="text-[11px] text-zinc-400">SMS • Email • WhatsApp</span>
+            </div>
+            <div id="notificationsFeed" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: FIND / DONATE BLOOD ==================== -->
+    <section id="tab-donate" class="tab-section hidden space-y-6">
+      <div class="glass-card rounded-3xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/10">
+          <div>
+            <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+              <span>🩸</span> Active Blood Requests &amp; Donor Response Feed
+            </h2>
+            <p class="text-sm text-zinc-400 mt-1">
+              Requests matching your blood group (<span class="text-crimson font-bold" id="donateTabUserBlood">O+</span>) or escalated cross-compatibility alerts appear below.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="filterUrgency" onchange="renderAllRequests()" class="bg-obsidian-900 border border-white/15 text-sm text-white rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-crimson">
+              <option value="ALL">All Urgency Levels</option>
+              <option value="Priority">🚨 Priority (0–1 Days)</option>
+              <option value="High">🔴 High (2–4 Days)</option>
+              <option value="Medium">🟠 Medium (5–7 Days)</option>
+              <option value="Low">🟢 Low (&gt; 7 Days)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="allRequestsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+          <!-- Cards populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: POST A REQUEST & DYNAMIC COUNTDOWN ==================== -->
+    <section id="tab-request" class="tab-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Request Form -->
+        <div class="lg:col-span-7 glass-card rounded-3xl p-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+            <h2 class="text-2xl font-extrabold text-white flex items-center gap-2">
+              <span>🏥</span> Receiver: Request Blood
+            </h2>
+            <button type="button" onclick="fillSelfReceiverDetails()" class="px-3 py-1.5 rounded-xl bg-obsidian-800 hover:bg-crimson text-xs font-bold text-zinc-200 hover:text-white border border-white/10 transition-all">
+              👤 Auto-Fill My Registered Details
+            </button>
+          </div>
+          <p class="text-xs text-zinc-400 mb-5">
+            Request blood for yourself or another patient. Submitting generates an instant <strong class="text-emerald-400">WhatsApp Broadcast Alert</strong> &amp; notifies compatible donors.
+          </p>
+
+          <form id="bloodRequestForm" onsubmit="handleCreateRequest(event)" class="space-y-4">
+            <!-- Patient Name, Age, Receiver Mobile -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Patient Name *</label>
+                <input type="text" id="reqPatientName" required placeholder="Patient full name"
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Patient Age *</label>
+                <input type="number" id="reqPatientAge" min="0" max="110" required placeholder="Age"
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Contact Mobile (WhatsApp) *</label>
+                <input type="tel" id="reqContactPhone" required maxlength="10" placeholder="9876543210"
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+              </div>
+            </div>
+
+            <!-- Hospital Name & Place / Area -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Hospital Name *</label>
+                <input type="text" id="reqHospital" required placeholder="e.g., City Care Hospital - Ward 4"
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Place / Area / Hospital Address *</label>
+                <input type="text" id="reqAddress" required placeholder="e.g., Brodipet, Guntur"
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+              </div>
+            </div>
+
+            <!-- Blood Group, Units, Days Remaining / Urgency -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Blood Group Needed *</label>
+                <select id="reqBloodGroup" onchange="updateFormEscalationPreview()"
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-crimson">
+                  <option value="O-">O-</option>
+                  <option value="O+">O+</option>
+                  <option value="A-">A-</option>
+                  <option value="A+">A+</option>
+                  <option value="B-">B-</option>
+                  <option value="B+" selected>B+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="AB+">AB+</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Units Required *</label>
+                <input type="number" id="reqUnits" min="1" max="10" value="2" required
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-crimson" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Days Remaining (Sets Urgency) *</label>
+                <input type="number" id="reqDays" min="0" max="30" value="1" oninput="updateFormEscalationPreview()" required
+                  class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-crimson" />
+              </div>
+            </div>
+
+            <!-- Live Dynamic Escalation Preview Box -->
+            <div id="escalationPreviewBox" class="p-4 rounded-2xl bg-crimson/10 border border-crimson/35 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-zinc-300">Auto-Calculated Urgency Tier:</span>
+                <span id="previewUrgencyBadge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-crimson text-white">
+                  🚨 PRIORITY (0–1 Days)
+                </span>
+              </div>
+              <p class="text-xs text-zinc-300" id="previewRadiusText">
+                📡 Broadcast Radius: <strong class="text-white">Up to 50 km</strong> (Cross-Compatibility Mode Active)
+              </p>
+              <div class="pt-1">
+                <span class="text-xs text-zinc-400 block mb-1.5">Compatible Donor Blood Groups Alerted:</span>
+                <div id="previewCompatibleChips" class="flex flex-wrap gap-1.5"></div>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 rounded-2xl bg-crimson hover:bg-crimson-light text-white font-extrabold text-sm shadow-lg shadow-crimson/30 transition-all">
+              🚨 Broadcast Request &amp; Prepare WhatsApp Alert
+            </button>
+          </form>
+        </div>
+
+        <!-- Dynamic Day Countdown Simulator & ABO Matrix Reference -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="glass-card-crimson rounded-3xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                <span>⏳</span> Dynamic Countdown Escalation Simulator
+              </h3>
+            </div>
+            <p class="text-xs text-zinc-300">
+              Test how the SAVIOUR engine automatically escalates active requests as the countdown drops from Low (&gt;7d) → Medium (5–7d) → High (2–4d) → Priority (0–1d), unlocking cross-compatible donor groups.
+            </p>
+            <button onclick="simulateDayCountdown()" class="w-full py-3 rounded-2xl bg-obsidian-900 hover:bg-obsidian-800 border border-crimson/50 text-white font-bold text-sm transition-all flex items-center justify-center gap-2">
+              <span>⏩</span> Simulate -1 Day Countdown Across Active Cases
+            </button>
+            <div class="text-[11px] text-zinc-400 space-y-1 bg-obsidian-950/60 p-3.5 rounded-2xl border border-white/5">
+              <p><strong class="text-emerald-400">&gt; 7 Days:</strong> Low Urgency (Exact blood match, 10–15 km)</p>
+              <p><strong class="text-amber-400">5–7 Days:</strong> Medium Urgency (Exact blood match, 10–15 km)</p>
+              <p><strong class="text-orange-400">2–4 Days:</strong> High Urgency (All compatible types, up to 50 km)</p>
+              <p><strong class="text-crimson">0–1 Days:</strong> Priority Alert (All compatible types, 50 km critical)</p>
+            </div>
+          </div>
+
+          <!-- ABO/Rh Compatibility Matrix Reference -->
+          <div class="glass-card rounded-3xl p-5">
+            <h4 class="text-sm font-extrabold text-white mb-3">🧬 Cross-Compatibility Broadcast Matrix</h4>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">O-</span> ➔ O-</div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">O+</span> ➔ O-, O+</div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">A-</span> ➔ O-, A-</div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">A+</span> ➔ O-, O+, A-, A+</div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">B-</span> ➔ O-, B-</div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">B+</span> ➔ O-, O+, B-, B+</div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">AB-</span> ➔ O-, A-, B-, AB-</div>
+              <div class="p-2.5 rounded-xl bg-obsidian-900 border border-white/5"><span class="text-crimson font-bold">AB+</span> ➔ All Types (Universal)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: DONOR PROFILE & ELIGIBILITY SCREENING ==================== -->
+    <section id="tab-profile" class="tab-section hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Donor Profile Details -->
+        <div class="lg:col-span-5 glass-card rounded-3xl p-6 space-y-5">
+          <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-crimson/20 border border-crimson flex items-center justify-center text-2xl font-black text-crimson" id="profAvatarBlood">
+                O+
+              </div>
+              <div>
+                <h2 class="text-xl font-extrabold text-white" id="profName">Arjun Sharma</h2>
+                <p class="text-xs text-zinc-400 font-mono" id="profIdDisplay">ID: SAV-2026-8492</p>
+              </div>
+            </div>
+            <button onclick="logoutUser()" class="px-3 py-1.5 rounded-xl bg-obsidian-800 hover:bg-crimson text-xs font-semibold text-zinc-200 hover:text-white border border-white/10">
+              Switch Account
+            </button>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-zinc-400">Gender &amp; Age</span>
+              <span class="font-semibold text-white" id="profGenderAge">Male • 27 yrs</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-zinc-400">Mobile Number</span>
+              <span class="font-semibold text-white" id="profMobile">+91 9876543210</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-zinc-400">Email</span>
+              <span class="font-semibold text-white" id="profEmail">arjun.saviour@gmail.com</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-white/5">
+              <span class="text-zinc-400">Place / Address</span>
+              <span class="font-semibold text-white" id="profAddress">Brodipet, Guntur</span>
+            </div>
+            <div class="flex justify-between py-2">
+              <span class="text-zinc-400">Total Units Donated</span>
+              <span class="font-extrabold text-crimson" id="profTotalUnits">4 Units</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eligibility Rules & Medical Screening Calculator -->
+        <div class="lg:col-span-7 glass-card rounded-3xl p-6 space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-xl font-extrabold text-white">🩺 Donor Eligibility &amp; Health Screening</h3>
+              <p class="text-xs text-zinc-400">Mandatory checks: Males &gt; 60 days gap, Females &gt; 120 days gap, zero alcohol &lt; 36 hrs, no active antibiotics/illness.</p>
+            </div>
+            <span id="profEligibilityPill" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+              ✅ ELIGIBLE TO DONATE
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Gender (Sets Recovery Gap)</label>
+              <select id="screenGender" onchange="evaluateDonorEligibility()" class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white">
+                <option value="Male" selected>Male (&gt; 60 Days Gap)</option>
+                <option value="Female">Female (&gt; 120 Days Gap)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 mb-1.5">Days Since Last Blood Donation</label>
+              <input type="number" id="screenDaysSince" min="0" max="1000" value="65" oninput="evaluateDonorEligibility()"
+                class="w-full bg-obsidian-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm text-white font-bold" />
+            </div>
+          </div>
+
+          <div class="space-y-3 bg-obsidian-900/90 p-4 rounded-2xl border border-white/10">
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-xs sm:text-sm text-zinc-200">Consumed alcohol or recreational drugs within last <strong>36 hours</strong>?</span>
+              <input type="checkbox" id="screenAlcohol" onchange="evaluateDonorEligibility()" class="w-5 h-5 accent-crimson rounded" />
+            </label>
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-xs sm:text-sm text-zinc-200">Had fever or high-dose antibiotics/medication in last <strong>1 month</strong>?</span>
+              <input type="checkbox" id="screenMeds" onchange="evaluateDonorEligibility()" class="w-5 h-5 accent-crimson rounded" />
+            </label>
+            <label class="flex items-center justify-between cursor-pointer">
+              <span class="text-xs sm:text-sm text-zinc-200">Any transmissible disease or major medical condition?</span>
+              <input type="checkbox" id="screenIllness" onchange="evaluateDonorEligibility()" class="w-5 h-5 accent-crimson rounded" />
+            </label>
+          </div>
+
+          <div id="eligibilityFeedbackBox" class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300">
+            All clinical and recovery gap standards met. You can accept emergency blood requests immediately.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: RECENT ACHIEVEMENTS & ANALYTICS 📊 ==================== -->
+    <section id="tab-achievements" class="tab-section hidden space-y-6">
+      <div class="glass-card-crimson rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
+            <span>📊</span> Recent Achievements &amp; Community Growth
+          </h2>
+          <p class="text-xs sm:text-sm text-zinc-300 mt-1">
+            Real-time impact tracking across donations completed, incoming emergency requests, registered saviours, and lives saved.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="resetDemoStorage()" class="px-3.5 py-2 rounded-2xl bg-obsidian-900 hover:bg-crimson border border-white/15 text-xs font-bold text-zinc-300 hover:text-white transition-all">
+            🔄 Reset Demo Data
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Main Stat Cards with Sparkline Growth Curves -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="glass-card rounded-3xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-zinc-400">Donations Done 🩸</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold">+18.4%</span>
+          </div>
+          <p class="text-3xl font-black text-white mt-2 stat-donations">1,452</p>
+          <p class="text-xs text-zinc-400 mt-0.5">Total Units Collected</p>
+          <svg viewBox="0 0 200 55" class="w-full h-14 mt-3 overflow-visible">
+            <path d="M0,48 L35,40 L70,42 L105,28 L140,22 L175,10 L200,4 L200,55 L0,55 Z" fill="url(#grad1)"/>
+            <path d="M0,48 L35,40 L70,42 L105,28 L140,22 L175,10 L200,4" fill="none" stroke="#DC143C" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="glass-card rounded-3xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-zinc-400">Requests Came 📣</span>
+            <span class="px-2 py-0.5 rounded-full bg-crimson/20 text-crimson text-[11px] font-bold">96% Fulfilled</span>
+          </div>
+          <p class="text-3xl font-black text-white mt-2 stat-requests">289</p>
+          <p class="text-xs text-zinc-400 mt-0.5">Total Emergency Cases</p>
+          <svg viewBox="0 0 200 55" class="w-full h-14 mt-3 overflow-visible">
+            <path d="M0,45 L35,38 L70,30 L105,33 L140,18 L175,15 L200,6 L200,55 L0,55 Z" fill="url(#grad1)"/>
+            <path d="M0,45 L35,38 L70,30 L105,33 L140,18 L175,15 L200,6" fill="none" stroke="#DC143C" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="glass-card rounded-3xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-zinc-400">Users Registered 👤</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold">+24.2%</span>
+          </div>
+          <p class="text-3xl font-black text-white mt-2 stat-users">3,910</p>
+          <p class="text-xs text-zinc-400 mt-0.5">Verified Community Donors</p>
+          <svg viewBox="0 0 200 55" class="w-full h-14 mt-3 overflow-visible">
+            <path d="M0,50 L35,44 L70,35 L105,29 L140,19 L175,11 L200,3 L200,55 L0,55 Z" fill="url(#grad1)"/>
+            <path d="M0,50 L35,44 L70,35 L105,29 L140,19 L175,11 L200,3" fill="none" stroke="#DC143C" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="glass-card rounded-3xl p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase text-zinc-400">Lives Impacted ❤️</span>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold">3x Multiplier</span>
+          </div>
+          <p class="text-3xl font-black text-emerald-400 mt-2 stat-lives">4,356</p>
+          <p class="text-xs text-zinc-400 mt-0.5">Patients Saved via Components</p>
+          <svg viewBox="0 0 200 55" class="w-full h-14 mt-3 overflow-visible">
+            <path d="M0,49 L35,41 L70,36 L105,24 L140,16 L175,9 L200,2 L200,55 L0,55 Z" fill="url(#grad1)"/>
+            <path d="M0,49 L35,41 L70,36 L105,24 L140,16 L175,9 L200,2" fill="none" stroke="#DC143C" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Detailed Monthly Growth Bar & Trend Chart -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 glass-card rounded-3xl p-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+            <div>
+              <h3 class="text-lg font-extrabold text-white">📈 Monthly Growth: Donations vs. Registrations</h3>
+              <p class="text-xs text-zinc-400">Comparative monthly trajectory (Last 8 Months)</p>
+            </div>
+            <div class="flex items-center gap-4 text-xs">
+              <span class="flex items-center gap-1.5 text-zinc-300"><span class="w-3 h-3 rounded-sm bg-crimson inline-block"></span> Donations Done</span>
+              <span class="flex items-center gap-1.5 text-zinc-300"><span class="w-3 h-3 rounded-sm bg-zinc-500 inline-block"></span> New Registrations</span>
+            </div>
+          </div>
+          <div id="monthlyGrowthChart" class="h-60 flex items-end justify-between gap-3 pt-6 px-2 border-b border-white/10">
+            <!-- Interactive bars populated via JS -->
+          </div>
+        </div>
+
+        <!-- Blood Group Supply & Demand Breakdown -->
+        <div class="lg:col-span-4 glass-card rounded-3xl p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-lg font-extrabold text-white mb-1">🩸 Donor Pool by Blood Type</h3>
+            <p class="text-xs text-zinc-400 mb-4">Active registered donors available for broadcast</p>
+            <div class="space-y-3" id="bloodPoolBreakdown">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-white/10 text-xs text-zinc-400 flex justify-between">
+            <span>Universal Donor (O-): <strong class="text-crimson">312</strong></span>
+            <span>Universal Receiver (AB+): <strong class="text-white">285</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  </div> <!-- End of authenticatedAppShell -->
+
+  <!-- ==================== DONOR-RECEIVER WHATSAPP CONNECTION MODAL ==================== -->
+  <div id="connectionModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card-crimson rounded-3xl max-w-lg w-full p-6 border border-crimson relative space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">
+          📲
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-white" id="connModalTitle">Direct Donor-Receiver Link Established!</h3>
+          <p class="text-xs text-emerald-400 font-semibold" id="connModalSubtitle">Automated WhatsApp &amp; Phone Coordination Ready</p>
+        </div>
+      </div>
+
+      <div id="connectionDetailsBody" class="space-y-3 text-xs">
+        <!-- Populated dynamically when Donor clicks Yes or Receiver posts request -->
+      </div>
+
+      <div id="connectionActionButtons" class="flex flex-col sm:flex-row gap-2.5 pt-1">
+        <!-- WhatsApp & Direct Call buttons populated dynamically -->
+      </div>
+
+      <button onclick="closeConnectionModal()" class="w-full py-2.5 rounded-2xl bg-obsidian-900 hover:bg-obsidian-800 border border-white/15 text-zinc-300 font-bold text-xs">
+        Close &amp; Return to Home
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT APPLICATION LOGIC ==================== -->
+  <script>
+    const STORAGE_KEY = 'SAVIOUR_APP_STATE_V2';
+
+    // ABO/Rh Compatibility Matrix: Key = Blood Needed -> Value = Array of Compatible Donor Blood Types
+    const BLOOD_COMPATIBILITY = {
+      'O-':  ['O-'],
+      'O+':  ['O-', 'O+'],
+      'A-':  ['O-', 'A-'],
+      'A+':  ['O-', 'O+', 'A-', 'A+'],
+      'B-':  ['O-', 'B-'],
+      'B+':  ['O-', 'O+', 'B-', 'B+'],
+      'AB-': ['O-', 'A-', 'B-', 'AB-'],
+      'AB+': ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
+    };
+
+    const DEFAULT_STATE = {
+      isLoggedIn: false,
+      currentUser: null,
+      users: [
+        {
+          id: 'SAV-2026-8492',
+          name: 'Arjun Sharma',
+          dob: '1999-05-14',
+          email: 'arjun.saviour@gmail.com',
+          phone: '9876543210',
+          age: 27,
+          gender: 'Male',
+          bloodGroup: 'O+',
+          address: 'Brodipet, Guntur',
+          daysSinceLastDonation: 65,
+          alcohol36h: false,
+          medsOrIllness: false,
+          unitsDonated: 4,
+          whatsappOptIn: true
+        },
+        {
+          id: 'SAV-2026-3104',
+          name: 'Sneha Reddy',
+          dob: '2001-08-22',
+          email: 'sneha.reddy@gmail.com',
+          phone: '9123456780',
+          age: 25,
+          gender: 'Female',
+          bloodGroup: 'B+',
+          address: 'Lakshmipuram, Guntur',
+          daysSinceLastDonation: 40,
+          alcohol36h: false,
+          medsOrIllness: false,
+          unitsDonated: 2,
+          whatsappOptIn: true
+        }
+      ],
+      stats: {
+        donations: 1452,
+        requests: 289,
+        users: 3910,
+        lives: 4356
+      },
+      requests: [
+        {
+          id: 'REQ-101',
+          patientName: 'Ramesh Babu',
+          patientAge: 48,
+          contactPhone: '9848012345',
+          hospital: 'City General Hospital',
+          address: 'Kothapet Main Road, Guntur (5.3 km)',
+          bloodGroup: 'B+',
+          units: 2,
+          daysRemaining: 1,
+          patientCondition: 'Emergency Trauma Surgery',
+          acceptedBy: null
+        },
+        {
+          id: 'REQ-102',
+          patientName: 'Kavitha Devi',
+          patientAge: 34,
+          contactPhone: '9989054321',
+          hospital: 'NRI Super Speciality Center',
+          address: 'Mangalagiri Highway (11.2 km)',
+          bloodGroup: 'A+',
+          units: 3,
+          daysRemaining: 3,
+          patientCondition: 'Cardiac Surgery',
+          acceptedBy: null
+        },
+        {
+          id: 'REQ-103',
+          patientName: 'Suresh Kumar',
+          patientAge: 29,
+          contactPhone: '9701234567',
+          hospital: 'St. Joseph Care Hospital',
+          address: 'Arundelpet 4th Lane (4.1 km)',
+          bloodGroup: 'O+',
+          units: 1,
+          daysRemaining: 8,
+          patientCondition: 'Scheduled Transfusion',
+          acceptedBy: null
+        }
+      ],
+      notifications: [
+        { text: '🚨 Urgent: B+ needed in City General Hospital (5.3 km) — Cross-compatible O+ alerted!', time: 'Just now' },
+        { text: '✅ Donor verified for Request #REQ-098 via WhatsApp & SMS gateway.', time: '2 hrs ago' },
+        { text: '🩸 Community milestone: 1,452 blood units donated across SAVIOUR network!', time: '5 hrs ago' }
+      ],
+      monthlyData: [
+        { month: 'Apr', donations: 110, users: 310 },
+        { month: 'May', donations: 135, users: 380 },
+        { month: 'Jun', donations: 148, users: 420 },
+        { month: 'Jul', donations: 172, users: 490 },
+        { month: 'Aug', donations: 190, users: 540 },
+        { month: 'Sep', donations: 215, users: 610 },
+        { month: 'Oct', donations: 232, users: 680 },
+        { month: 'Nov', donations: 250, users: 740 }
+      ]
+    };
+
+    // Load State from localStorage or initialize default
+    function loadAppState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        console.warn('Storage read skipped', e);
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveAppState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.warn('Storage write skipped', e);
+      }
+    }
+
+    let appState = loadAppState();
+
+    // ==================== AUTH GATE NAVIGATION (FIRST PAGE FLOW) ====================
+    function showAuthStep(step) {
+      document.getElementById('entryChoiceView').classList.add('hidden');
+      document.getElementById('signInStepView').classList.add('hidden');
+      document.getElementById('signUpStepView').classList.add('hidden');
+
+      if (step === 'choice') {
+        document.getElementById('entryChoiceView').classList.remove('hidden');
+      } else if (step === 'signin') {
+        document.getElementById('signInStepView').classList.remove('hidden');
+      } else if (step === 'signup') {
+        document.getElementById('signUpStepView').classList.remove('hidden');
+      }
+    }
+
+    function renderAuthGateOrApp() {
+      const authGate = document.getElementById('authGatePage');
+      const appShell = document.getElementById('authenticatedAppShell');
+
+      if (appState.isLoggedIn && appState.currentUser) {
+        authGate.classList.add('hidden');
+        appShell.classList.remove('hidden');
+        syncProfileInputsFromCurrentUser();
+        refreshUI();
+      } else {
+        authGate.classList.remove('hidden');
+        appShell.classList.add('hidden');
+        showAuthStep('choice');
+      }
+    }
+
+    function calculateAgeFromDob() {
+      const dobVal = document.getElementById('regDob').value;
+      if (!dobVal) return;
+      const dob = new Date(dobVal);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+      if (age >= 0) {
+        document.getElementById('regAge').value = age;
+      }
+    }
+
+    function handleSignInSubmit(e) {
+      e.preventDefault();
+      const query = document.getElementById('loginIdentifier').value.trim().toLowerCase();
+      const errEl = document.getElementById('loginErrorMsg');
+
+      const matched = appState.users.find(u =>
+        u.phone === query ||
+        u.email.toLowerCase() === query ||
+        u.id.toLowerCase() === query
+      );
+
+      if (!matched) {
+        errEl.textContent = '❌ Account not found. Please check your Mobile/Email/Donor ID or click Back to Sign Up.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      errEl.classList.add('hidden');
+      appState.currentUser = matched;
+      appState.isLoggedIn = true;
+      saveAppState();
+      renderAuthGateOrApp();
+      switchTab('dashboard');
+      showToast(`👋 Welcome back, ${matched.name} (${matched.id})!`, 'success');
+    }
+
+    function quickDemoLogin(phone) {
+      document.getElementById('loginIdentifier').value = phone;
+      const matched = appState.users.find(u => u.phone === phone);
+      if (matched) {
+        appState.currentUser = matched;
+        appState.isLoggedIn = true;
+        saveAppState();
+        renderAuthGateOrApp();
+        switchTab('dashboard');
+        showToast(`👋 Signed in as ${matched.name} (${matched.id})`, 'success');
+      }
+    }
+
+    function handleRegisterUser(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const dob = document.getElementById('regDob').value;
+      const age = parseInt(document.getElementById('regAge').value, 10);
+      const gender = document.getElementById('regGender').value;
+      const bloodGroup = document.getElementById('regBlood').value;
+      const lastDateVal = document.getElementById('regLastDonatedDate').value;
+      const phone = document.getElementById('regPhone').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const address = document.getElementById('regAddress').value.trim();
+
+      const hasTransmission = document.getElementById('regTransmission').value === 'yes';
+      const hasFeverMeds = document.getElementById('regFeverMeds').value === 'yes';
+      const alcohol36h = document.getElementById('regAlcohol36').value === 'yes';
+      const whatsappOptIn = document.getElementById('regWhatsapp').checked;
+
+      const errEl = document.getElementById('regErrorMsg');
+
+      // Validate Age
+      if (isNaN(age) || age < 18 || age > 65) {
+        errEl.textContent = '❌ Donor/User age must be between 18 and 65 years.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Validate Email (@ and domain)
+      if (!email.includes('@') || !email.includes('.')) {
+        errEl.textContent = '❌ Please enter a valid email address containing "@" and a domain.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Validate Phone: 10 digits starting with 6, 7, 8, or 9
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        errEl.textContent = '❌ Mobile number must be exactly 10 digits starting with 6, 7, 8, or 9.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Calculate days since last donation from selected date (or 999 if never donated)
+      let daysSince = 999;
+      if (lastDateVal) {
+        const diffMs = Date.now() - new Date(lastDateVal).getTime();
+        daysSince = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+      }
+
+      errEl.classList.add('hidden');
+      const newDonorId = `SAV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const newUser = {
+        id: newDonorId,
+        name,
+        dob,
+        email,
+        phone,
+        age,
+        gender,
+        bloodGroup,
+        address,
+        daysSinceLastDonation: daysSince,
+        alcohol36h,
+        medsOrIllness: hasTransmission || hasFeverMeds,
+        unitsDonated: 0,
+        whatsappOptIn
+      };
+
+      appState.users.push(newUser);
+      appState.currentUser = newUser;
+      appState.isLoggedIn = true;
+      appState.stats.users += 1;
+      appState.monthlyData[appState.monthlyData.length - 1].users += 1;
+
+      const channels = whatsappOptIn ? 'Email, SMS & WhatsApp' : 'Email & SMS';
+      addNotification(`🎉 Welcome ${name}! Donor ID ${newDonorId} generated. Verification sent via ${channels}.`);
+      saveAppState();
+
+      // Redirect straight to Home Dashboard
+      renderAuthGateOrApp();
+      switchTab('dashboard');
+      showToast(`✅ Account Created! Your Donor ID is ${newDonorId}. Redirected to Home.`, 'success');
+    }
+
+    function logoutUser() {
+      appState.isLoggedIn = false;
+      appState.currentUser = null;
+      saveAppState();
+      renderAuthGateOrApp();
+      showToast('🚪 Logged out safely.', 'info');
+    }
+
+    function resetDemoStorage() {
+      localStorage.removeItem(STORAGE_KEY);
+      appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      renderAuthGateOrApp();
+      showToast('🔄 Demo data reset to initial state.', 'info');
+    }
+
+    function syncProfileInputsFromCurrentUser() {
+      const u = appState.currentUser;
+      if (!u) return;
+      document.getElementById('screenGender').value = u.gender;
+      document.getElementById('screenDaysSince').value = u.daysSinceLastDonation;
+      document.getElementById('screenAlcohol').checked = u.alcohol36h;
+      document.getElementById('screenMeds').checked = u.medsOrIllness;
+      document.getElementById('screenIllness').checked = u.medsOrIllness;
+    }
+
+    // Determine Urgency Tier, Radius, and Compatible Donor Types from Days Remaining
+    function getUrgencyDetails(days, bloodGroup) {
+      if (days <= 1) {
+        return {
+          tier: 'Priority',
+          label: '🚨 PRIORITY (0–1 Days)',
+          badgeClass: 'bg-crimson text-white urgent-pulse',
+          radius: 'Up to 50 km (Critical Broadcast)',
+          crossCompatible: true,
+          alertedTypes: BLOOD_COMPATIBILITY[bloodGroup]
+        };
+      } else if (days <= 4) {
+        return {
+          tier: 'High',
+          label: '🔴 HIGH (2–4 Days)',
+          badgeClass: 'bg-orange-600 text-white',
+          radius: 'Up to 50 km (Cross-Compatibility Active)',
+          crossCompatible: true,
+          alertedTypes: BLOOD_COMPATIBILITY[bloodGroup]
+        };
+      } else if (days <= 7) {
+        return {
+          tier: 'Medium',
+          label: '🟠 MEDIUM (5–7 Days)',
+          badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
+          radius: '10–15 km (Exact Blood Match)',
+          crossCompatible: false,
+          alertedTypes: [bloodGroup]
+        };
+      } else {
+        return {
+          tier: 'Low',
+          label: '🟢 LOW (> 7 Days)',
+          badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
+          radius: '10–15 km (Exact Blood Match)',
+          crossCompatible: false,
+          alertedTypes: [bloodGroup]
+        };
+      }
+    }
+
+    // Check Donor Eligibility based on handwritten rules
+    function checkUserEligibility() {
+      const u = appState.currentUser;
+      if (!u) return { eligible: false, requiredGap: 60, reasons: ['Not logged in'] };
+      const requiredGap = u.gender === 'Male' ? 60 : 120;
+      const reasons = [];
+
+      if (u.daysSinceLastDonation <= requiredGap) {
+        reasons.push(`${u.gender} donors must wait > ${requiredGap} days (currently ${u.daysSinceLastDonation} days).`);
+      }
+      if (u.alcohol36h) {
+        reasons.push('Alcohol/drugs consumed within last 36 hours.');
+      }
+      if (u.medsOrIllness) {
+        reasons.push('Active medication/fever in last 1 month or medical condition.');
+      }
+
+      return {
+        eligible: reasons.length === 0,
+        requiredGap,
+        reasons
+      };
+    }
+
+    // Switch Navigation Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabId) {
+          btn.classList.add('bg-crimson', 'text-white', 'shadow-md');
+          btn.classList.remove('text-zinc-300', 'bg-obsidian-800');
+        } else {
+          btn.classList.remove('bg-crimson', 'text-white', 'shadow-md');
+          btn.classList.add('text-zinc-300');
+        }
+      });
+    }
+
+    // Show Toast Notification
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const borderColor = type === 'success' ? 'border-emerald-500' : type === 'urgent' ? 'border-crimson' : 'border-white/20';
+      toast.className = `pointer-events-auto glass-card ${borderColor} border-l-4 rounded-2xl p-3.5 text-xs text-white shadow-2xl transition-all duration-300`;
+      toast.innerHTML = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 4500);
+    }
+
+    // Render All UI Components
+    function refreshUI() {
+      if (!appState.currentUser) return;
+
+      // Update Stats Counters
+      document.querySelectorAll('.stat-donations').forEach(el => el.textContent = appState.stats.donations.toLocaleString());
+      document.querySelectorAll('.stat-requests').forEach(el => el.textContent = appState.stats.requests.toLocaleString());
+      document.querySelectorAll('.stat-users').forEach(el => el.textContent = appState.stats.users.toLocaleString());
+      document.querySelectorAll('.stat-lives').forEach(el => el.textContent = appState.stats.lives.toLocaleString());
+
+      // Update Header & Profile Info
+      const u = appState.currentUser;
+      const elig = checkUserEligibility();
+
+      document.getElementById('headerUserName').textContent = u.name;
+      document.getElementById('headerUserBlood').textContent = u.bloodGroup;
+      document.getElementById('headerDonorId').textContent = u.id;
+      document.getElementById('donateTabUserBlood').textContent = u.bloodGroup;
+
+      document.getElementById('dashDonorId').textContent = u.id;
+      document.getElementById('dashBloodGroup').textContent = u.bloodGroup;
+      document.getElementById('dashGender').textContent = u.gender;
+      document.getElementById('dashDaysAgo').textContent = u.daysSinceLastDonation > 900 ? 'Never' : u.daysSinceLastDonation;
+      document.getElementById('dashGapRule').textContent = `> ${elig.requiredGap} Days (${u.gender})`;
+
+      const dashBadge = document.getElementById('dashEligibilityBadge');
+      const profPill = document.getElementById('profEligibilityPill');
+      if (elig.eligible) {
+        dashBadge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30';
+        dashBadge.textContent = '✅ Eligible to Donate';
+        profPill.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
+        profPill.textContent = '✅ ELIGIBLE TO DONATE';
+      } else {
+        dashBadge.className = 'px-2.5 py-1 rounded-full text-xs font-bold bg-crimson/20 text-crimson border border-crimson/40';
+        dashBadge.textContent = '⏳ Recovery / Ineligible';
+        profPill.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-crimson/20 text-crimson border border-crimson/40';
+        profPill.textContent = '⛔ INELIGIBLE CURRENTLY';
+      }
+
+      // Profile Tab Fields
+      document.getElementById('profAvatarBlood').textContent = u.bloodGroup;
+      document.getElementById('profName').textContent = u.name;
+      document.getElementById('profIdDisplay').textContent = `ID: ${u.id}`;
+      document.getElementById('profGenderAge').textContent = `${u.gender} • ${u.age} yrs`;
+      document.getElementById('profMobile').textContent = `+91 ${u.phone}`;
+      document.getElementById('profEmail').textContent = u.email;
+      document.getElementById('profAddress').textContent = u.address;
+      document.getElementById('profTotalUnits').textContent = `${u.unitsDonated} Units`;
+
+      // Render Urgent Causes on Dashboard
+      renderDashboardUrgentList();
+      renderAllRequests();
+      renderNotifications();
+      renderAnalyticsCharts();
+    }
+
+    function renderDashboardUrgentList() {
+      const container = document.getElementById('dashboardUrgentList');
+      document.getElementById('activeRequestCountLabel').textContent = `${appState.requests.length} Active Cases`;
+
+      if (appState.requests.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center rounded-2xl bg-obsidian-900/70 text-xs text-zinc-400">🎉 All active blood requests have been fulfilled!</div>`;
+        return;
+      }
+
+      container.innerHTML = appState.requests.map(req => {
+        const urg = getUrgencyDetails(req.daysRemaining, req.bloodGroup);
+        const canDonateToThis = urg.alertedTypes.includes(appState.currentUser.bloodGroup);
+
+        return `
+          <div class="p-4 rounded-2xl bg-obsidian-900/90 border ${urg.tier === 'Priority' || urg.tier === 'High' ? 'border-crimson/45' : 'border-white/10'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-lg bg-crimson text-white font-black text-xs">${req.bloodGroup}</span>
+                <span class="text-sm font-bold text-white">${req.hospital}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${urg.badgeClass}">${urg.label}</span>
+              </div>
+              <p class="text-xs text-zinc-300">Patient: <strong>${req.patientName || 'Patient'}</strong> (${req.patientAge || 'N/A'}y) • <strong class="text-white">${req.units} Units</strong> • ${req.daysRemaining}d left</p>
+              <p class="text-xs text-zinc-400">📍 ${req.address}</p>
+              <p class="text-[11px] text-zinc-400">
+                Alerted Types: <span class="text-crimson font-semibold">${urg.alertedTypes.join(', ')}</span>
+                ${canDonateToThis ? '<span class="ml-1.5 text-emerald-400 font-semibold">• You can donate!</span>' : ''}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+              ${req.acceptedBy ? `
+                <button onclick="respondToRequest('${req.id}', true)" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold">
+                  📲 WhatsApp Link
+                </button>
+              ` : `
+                <button onclick="respondToRequest('${req.id}', true)" class="px-3 py-2 rounded-xl bg-crimson hover:bg-crimson-light text-white text-xs font-bold transition-all">
+                  Donate? Yes
+                </button>
+              `}
+              <button onclick="markBloodReceived('${req.id}')" title="Mark Requirement Fulfilled" class="px-3 py-2 rounded-xl bg-obsidian-800 hover:bg-emerald-600 text-zinc-300 hover:text-white border border-white/10 text-xs font-semibold transition-all">
+                ✓ Received
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAllRequests() {
+      const container = document.getElementById('allRequestsContainer');
+      const filter = document.getElementById('filterUrgency').value;
+
+      const filtered = appState.requests.filter(req => {
+        if (filter === 'ALL') return true;
+        return getUrgencyDetails(req.daysRemaining, req.bloodGroup).tier === filter;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full p-8 text-center text-sm text-zinc-400 bg-obsidian-900/60 rounded-2xl">No requests match this urgency filter.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(req => {
+        const urg = getUrgencyDetails(req.daysRemaining, req.bloodGroup);
+        const isCompatible = urg.alertedTypes.includes(appState.currentUser.bloodGroup);
+
+        return `
+          <div class="glass-card-crimson rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold ${urg.badgeClass}">${urg.label}</span>
+                <span class="text-xs font-mono text-zinc-400">${req.id}</span>
+              </div>
+              <div class="flex items-center gap-3 pt-1">
+                <div class="w-12 h-12 rounded-2xl bg-crimson flex items-center justify-center text-lg font-black text-white shrink-0">
+                  ${req.bloodGroup}
+                </div>
+                <div>
+                  <h4 class="text-base font-extrabold text-white">${req.hospital}</h4>
+                  <p class="text-xs text-zinc-300">📍 ${req.address}</p>
+                </div>
+              </div>
+              <div class="bg-obsidian-950/70 p-3 rounded-xl text-xs space-y-1 border border-white/5">
+                <p class="text-zinc-300">👤 Patient: <strong class="text-white">${req.patientName || 'Patient'}</strong> (Age: ${req.patientAge || 'N/A'})</p>
+                <p class="text-zinc-300">🩸 Required: <strong class="text-white">${req.units} Units</strong> (${req.patientCondition})</p>
+                <p class="text-zinc-300">📡 Broadcast Scope: <strong class="text-white">${urg.radius}</strong></p>
+                <p class="text-zinc-300">🧬 Alerted Donor Types: <strong class="text-crimson">${urg.alertedTypes.join(', ')}</strong></p>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-zinc-300">Want to donate?</span>
+                <button onclick="respondToRequest('${req.id}', true)" class="px-3.5 py-1.5 rounded-xl ${isCompatible ? 'bg-crimson hover:bg-crimson-light text-white' : 'bg-obsidian-800 text-zinc-400'} text-xs font-bold transition-all">
+                  Yes 🩸
+                </button>
+                <button onclick="respondToRequest('${req.id}', false)" class="px-3 py-1.5 rounded-xl bg-obsidian-800 hover:bg-obsidian-700 text-zinc-300 text-xs font-semibold">
+                  No
+                </button>
+              </div>
+              <button onclick="markBloodReceived('${req.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/40 text-xs font-bold transition-all">
+                Blood Received ✓
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Handle Donor Clicking Yes/No on a Request -> Launches Direct WhatsApp Automation & Phone Call
+    function respondToRequest(reqId, accepted) {
+      const req = appState.requests.find(r => r.id === reqId);
+      if (!req) return;
+
+      if (!accepted) {
+        showToast(`⏭️ Declined request ${reqId}. Re-routing alert to next nearby donor.`, 'info');
+        return;
+      }
+
+      const elig = checkUserEligibility();
+      if (!elig.eligible) {
+        showToast(`⛔ Cannot donate yet: ${elig.reasons[0]}`, 'urgent');
+        switchTab('profile');
+        return;
+      }
+
+      const urg = getUrgencyDetails(req.daysRemaining, req.bloodGroup);
+      if (!urg.alertedTypes.includes(appState.currentUser.bloodGroup)) {
+        showToast(`⚠️ Blood type ${appState.currentUser.bloodGroup} is not compatible for ${req.bloodGroup}.`, 'urgent');
+        return;
+      }
+
+      req.acceptedBy = appState.currentUser.name;
+      saveAppState();
+
+      const u = appState.currentUser;
+      const receiverPhone = req.contactPhone || '9848012345';
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(req.hospital + ' ' + req.address)}`;
+      const waMessage = `🚨 *SAVIOUR BLOOD DONATION MATCH* 🩸\n\nHello, I am *${u.name}* (Donor ID: *${u.id}*).\nI have accepted your emergency blood request for *${req.patientName || 'Patient'}*!\n\n*Donor Details:*\n• Name: ${u.name} (${u.gender})\n• Blood Group: *${u.bloodGroup}*\n• Mobile: +91 ${u.phone}\n\n*Hospital Location:*\n🏥 ${req.hospital}, ${req.address}\n📍 Map: ${mapsUrl}\n\nI am coordinating to reach the hospital shortly.`;
+      const waLink = `https://wa.me/91${receiverPhone}?text=${encodeURIComponent(waMessage)}`;
+
+      document.getElementById('connModalTitle').textContent = 'Donor Accepted — WhatsApp Automation Ready!';
+      document.getElementById('connModalSubtitle').textContent = 'Location details & donor profile ready to send directly';
+
+      document.getElementById('connectionDetailsBody').innerHTML = `
+        <div class="p-3.5 rounded-2xl bg-obsidian-900 border border-white/10 space-y-1">
+          <p class="text-[11px] uppercase font-bold text-crimson">Donor Details Shared With Receiver</p>
+          <p class="text-white font-bold">${u.name} (${u.gender}, ${u.bloodGroup}) • ID: ${u.id}</p>
+          <p class="text-zinc-300">📱 Donor Mobile: +91 ${u.phone}</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-obsidian-900 border border-white/10 space-y-1">
+          <p class="text-[11px] uppercase font-bold text-emerald-400">Patient, Hospital &amp; Location Details</p>
+          <p class="text-white font-bold">${req.patientName || 'Patient'} (${req.patientAge || 'N/A'} yrs) — ${req.units} Units (${req.bloodGroup})</p>
+          <p class="text-zinc-300">🏥 ${req.hospital}, ${req.address}</p>
+          <p class="text-zinc-300">📞 Receiver Contact: +91 ${receiverPhone}</p>
+        </div>
+      `;
+
+      document.getElementById('connectionActionButtons').innerHTML = `
+        <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="flex-1 py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs text-center shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
+          <span>💬</span> Send Automated WhatsApp Message
+        </a>
+        <a href="tel:+91${receiverPhone}" class="py-3 px-4 rounded-2xl bg-crimson hover:bg-crimson-light text-white font-extrabold text-xs text-center transition-all flex items-center justify-center gap-2">
+          <span>📞</span> Call +91 ${receiverPhone}
+        </a>
+      `;
+
+      document.getElementById('connectionModal').classList.remove('hidden');
+
+      addNotification(`🤝 ${u.name} (${u.bloodGroup}) accepted ${req.hospital} request! WhatsApp & phone link generated.`);
+      refreshUI();
+    }
+
+    function closeConnectionModal() {
+      document.getElementById('connectionModal').classList.add('hidden');
+    }
+
+    // Mark Request as "Blood Received" -> Removes Popup, Saves Log, Updates Stats & Donor Profile
+    function markBloodReceived(reqId) {
+      const idx = appState.requests.findIndex(r => r.id === reqId);
+      if (idx === -1) return;
+
+      const completedReq = appState.requests[idx];
+      appState.requests.splice(idx, 1);
+
+      // Update Platform Achievements
+      appState.stats.donations += completedReq.units;
+      appState.stats.lives += completedReq.units * 3;
+      appState.monthlyData[appState.monthlyData.length - 1].donations += completedReq.units;
+
+      if (completedReq.acceptedBy === appState.currentUser.name) {
+        appState.currentUser.unitsDonated += completedReq.units;
+        appState.currentUser.daysSinceLastDonation = 0;
+        document.getElementById('screenDaysSince').value = 0;
+      }
+
+      saveAppState();
+      addNotification(`✅ Requirement completed for ${completedReq.hospital} (${completedReq.units} units). Alert removed & donor records updated!`);
+      showToast(`🎉 Blood Received confirmed! +${completedReq.units} units added to Recent Achievements.`, 'success');
+      refreshUI();
+    }
+
+    // Auto-Fill Receiver Form with Current User's Registered Details
+    function fillSelfReceiverDetails() {
+      const u = appState.currentUser;
+      if (!u) return;
+      document.getElementById('reqPatientName').value = u.name;
+      document.getElementById('reqPatientAge').value = u.age;
+      document.getElementById('reqContactPhone').value = u.phone;
+      document.getElementById('reqBloodGroup').value = u.bloodGroup;
+      document.getElementById('reqAddress').value = u.address;
+      updateFormEscalationPreview();
+      showToast('👤 Pre-filled with your registered profile details.', 'info');
+    }
+
+    // Create New Request from Receiver Page + Direct WhatsApp Broadcast Trigger
+    function handleCreateRequest(e) {
+      e.preventDefault();
+      const patientName = document.getElementById('reqPatientName').value.trim();
+      const patientAge = parseInt(document.getElementById('reqPatientAge').value, 10);
+      const contactPhone = document.getElementById('reqContactPhone').value.trim();
+      const hospital = document.getElementById('reqHospital').value.trim();
+      const address = document.getElementById('reqAddress').value.trim();
+      const bloodGroup = document.getElementById('reqBloodGroup').value;
+      const units = parseInt(document.getElementById('reqUnits').value, 10);
+      const daysRemaining = parseInt(document.getElementById('reqDays').value, 10);
+
+      if (!/^[6-9]\d{9}$/.test(contactPhone)) {
+        showToast('❌ Please enter a valid 10-digit mobile number starting with 6–9.', 'urgent');
+        return;
+      }
+
+      const newReq = {
+        id: `REQ-${Math.floor(104 + Math.random() * 890)}`,
+        patientName,
+        patientAge,
+        contactPhone,
+        hospital,
+        address,
+        bloodGroup,
+        units,
+        daysRemaining,
+        patientCondition: 'Urgent Hospital Requirement',
+        acceptedBy: null
+      };
+
+      appState.requests.unshift(newReq);
+      appState.stats.requests += 1;
+      saveAppState();
+
+      const urg = getUrgencyDetails(daysRemaining, bloodGroup);
+      addNotification(`🚨 New ${urg.tier} Request: ${units}U of ${bloodGroup} for ${patientName} at ${hospital}. Alerted: ${urg.alertedTypes.join(', ')}`);
+
+      // Prepare Direct WhatsApp Broadcast Link for Receiver to Share with Donors
+      const broadcastText = `🚨 *URGENT BLOOD REQUIREMENT - SAVIOUR* 🩸\n\n*Patient:* ${patientName} (Age: ${patientAge})\n*Blood Group Needed:* *${bloodGroup}* (${units} Units)\n*Urgency:* ${urg.label}\n*Compatible Donors:* ${urg.alertedTypes.join(', ')}\n*Hospital:* ${hospital}\n*Location:* ${address}\n*Contact:* +91 ${contactPhone}\n\nPlease respond via SAVIOUR or call directly to save a life! 🙏`;
+      const waBroadcastUrl = `https://wa.me/?text=${encodeURIComponent(broadcastText)}`;
+
+      document.getElementById('connModalTitle').textContent = 'Emergency Blood Request Broadcasted!';
+      document.getElementById('connModalSubtitle').textContent = `Alerted ${urg.alertedTypes.join(', ')} donors (${urg.radius})`;
+      document.getElementById('connectionDetailsBody').innerHTML = `
+        <div class="p-3.5 rounded-2xl bg-obsidian-900 border border-white/10 space-y-1">
+          <p class="text-[11px] uppercase font-bold text-crimson">Broadcast Summary (${newReq.id})</p>
+          <p class="text-white font-bold">${patientName} (${patientAge}y) • ${units} Units of ${bloodGroup}</p>
+          <p class="text-zinc-300">🏥 ${hospital}, ${address}</p>
+          <p class="text-emerald-400 font-semibold">🧬 Compatible Donor Groups Alerted: ${urg.alertedTypes.join(', ')}</p>
+        </div>
+      `;
+      document.getElementById('connectionActionButtons').innerHTML = `
+        <a href="${waBroadcastUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs text-center shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2">
+          <span>💬</span> Share Alert Directly on WhatsApp
+        </a>
+      `;
+      document.getElementById('connectionModal').classList.remove('hidden');
+
+      e.target.reset();
+      document.getElementById('reqDays').value = 1;
+      updateFormEscalationPreview();
+      refreshUI();
+      switchTab('dashboard');
+    }
+
+    // Update Live Preview inside Post Request Form
+    function updateFormEscalationPreview() {
+      const days = parseInt(document.getElementById('reqDays').value || 0, 10);
+      const bg = document.getElementById('reqBloodGroup').value;
+      const urg = getUrgencyDetails(days, bg);
+
+      const badge = document.getElementById('previewUrgencyBadge');
+      badge.className = `px-3 py-1 rounded-full text-xs font-extrabold ${urg.badgeClass}`;
+      badge.textContent = urg.label;
+
+      document.getElementById('previewRadiusText').innerHTML = `📡 Broadcast Radius: <strong class="text-white">${urg.radius}</strong>`;
+
+      const chips = document.getElementById('previewCompatibleChips');
+      chips.innerHTML = urg.alertedTypes.map(type => `
+        <span class="px-2.5 py-1 rounded-lg bg-crimson/25 border border-crimson/50 text-white font-bold text-xs">${type}</span>
+      `).join('');
+    }
+
+    // Simulate -1 Day Countdown across all active requests
+    function simulateDayCountdown() {
+      if (appState.requests.length === 0) {
+        showToast('No active requests to countdown.', 'info');
+        return;
+      }
+
+      let escalatedCount = 0;
+      appState.requests.forEach(req => {
+        if (req.daysRemaining > 0) {
+          const prevTier = getUrgencyDetails(req.daysRemaining, req.bloodGroup).tier;
+          req.daysRemaining -= 1;
+          const newUrg = getUrgencyDetails(req.daysRemaining, req.bloodGroup);
+
+          if (prevTier !== newUrg.tier) {
+            escalatedCount++;
+            addNotification(`⏳ Escalation: ${req.hospital} (${req.bloodGroup}) shifted ${prevTier} ➔ ${newUrg.tier}! Now alerting: ${newUrg.alertedTypes.join(', ')}`);
+          }
+        }
+      });
+
+      saveAppState();
+      showToast(`⏩ Simulated -1 Day! ${escalatedCount} case(s) escalated urgency & expanded donor compatibility.`, 'urgent');
+      refreshUI();
+    }
+
+    // Evaluate Donor Eligibility from Screening Controls
+    function evaluateDonorEligibility() {
+      appState.currentUser.gender = document.getElementById('screenGender').value;
+      appState.currentUser.daysSinceLastDonation = parseInt(document.getElementById('screenDaysSince').value || 0, 10);
+      appState.currentUser.alcohol36h = document.getElementById('screenAlcohol').checked;
+      appState.currentUser.medsOrIllness = document.getElementById('screenMeds').checked || document.getElementById('screenIllness').checked;
+      saveAppState();
+
+      const elig = checkUserEligibility();
+      const box = document.getElementById('eligibilityFeedbackBox');
+
+      if (elig.eligible) {
+        box.className = 'p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300';
+        box.textContent = '✅ All clinical and recovery gap standards met. You are cleared to donate blood.';
+      } else {
+        box.className = 'p-4 rounded-2xl bg-crimson/15 border border-crimson/40 text-xs text-crimson font-semibold';
+        box.innerHTML = `⛔ Donation Restricted:<br/>• ${elig.reasons.join('<br/>• ')}`;
+      }
+      refreshUI();
+    }
+
+    function addNotification(text) {
+      appState.notifications.unshift({ text, time: 'Just now' });
+      saveAppState();
+    }
+
+    function renderNotifications() {
+      const feed = document.getElementById('notificationsFeed');
+      feed.innerHTML = appState.notifications.map(n => `
+        <div class="p-3 rounded-2xl bg-obsidian-900/90 border border-white/5 text-xs flex items-start justify-between gap-2">
+          <p class="text-zinc-200 leading-relaxed">${n.text}</p>
+          <span class="text-[10px] text-zinc-500 whitespace-nowrap">${n.time}</span>
+        </div>
+      `).join('');
+    }
+
+    // Render Bar Charts for Dashboard & Achievements Tab
+    function renderAnalyticsCharts() {
+      // Mini History Bars on Dashboard
+      const miniBars = document.getElementById('miniHistoryBars');
+      const sampleHeights = [40, 75, 55, 95, 65, 85, 50, 100];
+      const labels = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A'];
+      miniBars.innerHTML = sampleHeights.map((h, i) => `
+        <div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+          <div class="w-full rounded-t-md ${i % 2 === 0 ? 'bg-crimson' : 'bg-crimson/50'}" style="height: ${h}%"></div>
+          <span class="text-[9px] text-zinc-500 font-bold">${labels[i]}</span>
+        </div>
+      `).join('');
+
+      // Full Monthly Growth Chart in Achievements Tab
+      const growthChart = document.getElementById('monthlyGrowthChart');
+      const maxUsers = Math.max(...appState.monthlyData.map(d => d.users));
+      growthChart.innerHTML = appState.monthlyData.map(d => {
+        const donH = Math.round((d.donations / maxUsers) * 100);
+        const usrH = Math.round((d.users / maxUsers) * 100);
+        return `
+          <div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group">
+            <div class="w-full flex items-end justify-center gap-1 h-48">
+              <div class="w-3 sm:w-4 bg-crimson rounded-t-md transition-all group-hover:bg-crimson-light" style="height: ${donH}%" title="Donations: ${d.donations}"></div>
+              <div class="w-3 sm:w-4 bg-zinc-600 rounded-t-md transition-all group-hover:bg-zinc-400" style="height: ${usrH}%" title="Registrations: ${d.users}"></div>
+            </div>
+            <span class="text-xs font-semibold text-zinc-400">${d.month}</span>
+          </div>
+        `;
+      }).join('');
+
+      // Blood Pool Breakdown
+      const pool = [
+        { type: 'O+', pct: 34, count: 1329 },
+        { type: 'B+', pct: 28, count: 1095 },
+        { type: 'A+', pct: 21, count: 821 },
+        { type: 'O-', pct: 8,  count: 312 },
+        { type: 'AB+', pct: 9, count: 353 }
+      ];
+      document.getElementById('bloodPoolBreakdown').innerHTML = pool.map(p => `
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="font-bold text-white">${p.type} Donors</span>
+            <span class="text-zinc-400">${p.count} (${p.pct}%)</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-obsidian-900 overflow-hidden">
+            <div class="h-full bg-crimson rounded-full" style="width: ${p.pct}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Initialize App on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateFormEscalationPreview();
+      renderAuthGateOrApp();
+    });
+  </script>
+</body>
+</html>
